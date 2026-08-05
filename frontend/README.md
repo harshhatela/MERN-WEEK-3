@@ -1,16 +1,34 @@
-# React + Vite
+# Notes App Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A React single-page application for managing personal notes. Includes user authentication (register/login), full CRUD for notes (create, read, update, delete), client-side search by title, and image attachments for notes.
 
-Currently, two official plugins are available:
+Built with React 19, React Router, and Axios. Styled with vanilla CSS.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **Register & Login** — JWT-based authentication with protected routes
+- **Create, Edit, Delete Notes** — full CRUD from the dashboard
+- **Search Notes** — filter notes by title in real time
+- **Image Uploads** — attach an image to any note (instant preview, uploads to backend)
+- **Responsive Layout** — works on desktop and mobile
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Prerequisites
 
-## Expanding the Oxlint configuration
+The frontend expects the backend API to be running at `http://localhost:5000`. See the [backend README](../backend/README.md) for setup instructions.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Getting Started
+
+```bash
+npm install
+npm run dev
+```
+
+The dev server starts at `http://localhost:5173` by default (Vite).
+
+## Build for Production
+
+```bash
+npm run build
+```
+
+Output goes to the `dist/` directory.

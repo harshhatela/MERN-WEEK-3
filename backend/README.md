@@ -2,12 +2,17 @@
 
 A RESTful API for a notes application with user authentication, built as a Week 2 MERN internship assignment. This single backend project covers all three assignment requirements — **To-Do List REST API**, **User Authentication API**, and the **Notes App Backend mini project** — by combining CRUD operations with JWT-based authentication into one clean API.
 
+**Week 3** added CORS support (so the React frontend on a different port can call the API during development), image uploads for notes, and static file serving.
+
 ## Features
 
 - **User Registration & Login** with hashed passwords (bcrypt) and JWT tokens
 - **Full CRUD for Notes** — create, read, update, and delete
 - **Private Notes** — each user can only access their own notes
 - **Protected Routes** — all note endpoints require a valid JWT
+- **Image Uploads** — attach an image to any note (5 MB limit, image mimetypes only)
+- **Static File Serving** — uploaded images are served from `/uploads`
+- **CORS Enabled** — allows cross-origin requests from the React frontend
 - **Input Validation** with clear error messages and proper HTTP status codes
 - **MongoDB** database with Mongoose ODM
 
@@ -21,6 +26,8 @@ A RESTful API for a notes application with user authentication, built as a Week 
 | Mongoose      | ODM for MongoDB (schemas & models)     |
 | bcryptjs      | Password hashing                       |
 | jsonwebtoken  | JWT creation and verification          |
+| multer        | Multipart/form-data file uploads       |
+| cors          | Cross-Origin Resource Sharing          |
 | dotenv        | Environment variable management        |
 | nodemon       | Auto-restart server during development |
 
@@ -32,15 +39,17 @@ notes-app-backend/
 │   └── db.js                  # MongoDB connection setup
 ├── controllers/
 │   ├── authController.js      # Register & login logic
-│   └── noteController.js      # CRUD logic for notes
+│   └── noteController.js      # CRUD logic for notes + image upload
 ├── middleware/
-│   └── auth.js                # JWT verification middleware
+│   ├── auth.js                # JWT verification middleware
+│   └── upload.js              # Multer config (storage, 5 MB limit, image filter)
 ├── models/
 │   ├── User.js                # User schema (name, email, hashed password)
-│   └── Note.js                # Note schema (title, content, user ref)
+│   └── Note.js                # Note schema (title, content, user ref, image)
 ├── routes/
 │   ├── authRoutes.js          # POST /register, POST /login
-│   └── noteRoutes.js          # GET, POST, PUT, DELETE /notes
+│   └── noteRoutes.js          # GET, POST, PUT, DELETE /notes + POST /notes/:id/image
+├── uploads/                   # Uploaded images (git-ignored except .gitkeep)
 ├── .env.example               # Sample environment variables
 ├── .gitignore                 # Ignores node_modules and .env
 ├── package.json               # Dependencies and scripts
@@ -128,13 +137,16 @@ Server running on port 5000
 
 ### Note Routes (Protected — requires Bearer token)
 
-| Method | Endpoint           | Body                        | Description                              |
-|--------|--------------------|-----------------------------|------------------------------------------|
-| GET    | `/api/notes`       | —                           | Get all notes for the logged-in user     |
-| GET    | `/api/notes/:id`   | —                           | Get a single note by ID                  |
-| POST   | `/api/notes`       | `{ "title", "content" }`   | Create a new note                        |
-| PUT    | `/api/notes/:id`   | `{ "title", "content" }`   | Update an existing note                  |
-| DELETE | `/api/notes/:id`   | —                           | Delete a note                            |
+| Method | Endpoint                  | Body / Content-Type                                       | Description                                                  |
+|--------|---------------------------|-----------------------------------------------------------|--------------------------------------------------------------|
+| GET    | `/api/notes`              | —                                                         | Get all notes for the logged-in user                         |
+| GET    | `/api/notes/:id`          | —                                                         | Get a single note by ID                                      |
+| POST   | `/api/notes`              | `{ "title", "content" }`                                  | Create a new note                                            |
+| PUT    | `/api/notes/:id`          | `{ "title", "content" }`                                  | Update an existing note                                      |
+| DELETE | `/api/notes/:id`          | —                                                         | Delete a note                                                |
+| POST   | `/api/notes/:id/image`    | `multipart/form-data` — field `image` (single image file) | Upload an image for a note (5 MB limit, image mimetypes only)|
+
+Uploaded images are saved to the `uploads/` directory and served statically at `/uploads/<filename>` (e.g. `http://localhost:5000/uploads/1720000000000-photo.jpg`).
 
 ### Status Codes Used
 
@@ -142,7 +154,7 @@ Server running on port 5000
 |------|----------------------------------------------|
 | 200  | Success                                      |
 | 201  | Created (new user or new note)               |
-| 400  | Bad request (missing fields, duplicate email, wrong credentials) |
+| 400  | Bad request (missing fields, duplicate email, wrong credentials, no image file) |
 | 401  | Unauthorized (missing or invalid JWT)        |
 | 404  | Not found (note doesn't exist or not yours)  |
 | 500  | Server error                                 |
@@ -193,7 +205,15 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
   }
   ```
 
-### Step 5: Try All Other Endpoints
+### Step 5: Upload an Image to a Note
+
+- **Method**: POST
+- **URL**: `http://localhost:5000/api/notes/<note-id>/image`
+- **Headers**: `Authorization: Bearer <your-token>`
+- **Body**: select **form-data**, add a field named `image` with type **File**, and choose an image file (max 5 MB).
+- **Response**: The updated note object with the `image` field set to the saved filename.
+
+### Step 6: Try All Other Endpoints
 
 - **GET** `/api/notes` — see all your notes
 - **GET** `/api/notes/:id` — get one note (use the `_id` from the create response)
@@ -213,6 +233,5 @@ Remember to:
 
 ## Future Improvements
 
-- **Search & Filter** — add query parameters to search notes by title or content keywords, making it easier to find specific notes.
 - **Note Categories / Tags** — allow users to organize notes with tags or categories and filter by them.
 - **Password Reset** — add a "forgot password" flow using email with a time-limited reset token, so users can recover their accounts.
