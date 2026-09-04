@@ -176,7 +176,7 @@ const DashboardPage = () => {
                       {(note.previewImage || note.image) && (
                         <div className="note-image-container">
                           <img 
-                            src={note.previewImage || `http://localhost:5000/uploads/${note.image}`} 
+                            src={note.previewImage || `${import.meta.env.VITE_UPLOADS_URL || "http://localhost:5000"}/uploads/${note.image}`} 
                             alt="Note attachment" 
                             className="note-image"
                           />

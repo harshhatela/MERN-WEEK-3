@@ -31,6 +31,18 @@ app.use("/api/auth", authRoutes);
 // Note routes: CRUD operations (protected by JWT middleware)
 app.use("/api/notes", noteRoutes);
 
+// --- 404 Handler for unmatched routes ---
+app.use((req, res, next) => {
+  res.status(404).json({ message: "Route not found" });
+});
+
+// --- Centralized Error-Handling Middleware ---
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err.message);
+  const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
+  res.status(statusCode).json({ message: err.message || "Internal Server Error" });
+});
+
 // --- Start Server ---
 const PORT = process.env.PORT || 5000;
 
@@ -40,3 +52,4 @@ connectDB().then(() => {
     console.log(`Server running on port ${PORT}`);
   });
 });
+

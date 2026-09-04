@@ -6,6 +6,7 @@ const RegisterPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const { register } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -13,6 +14,12 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
     const result = await register(name, email, password);
     if (result.success) {
       navigate("/");
@@ -54,6 +61,16 @@ const RegisterPage = () => {
             minLength="6"
           />
         </div>
+        <div className="form-group">
+          <label>Confirm Password</label>
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            minLength="6"
+          />
+        </div>
         <button type="submit">Register</button>
       </form>
       <p>
@@ -64,3 +81,4 @@ const RegisterPage = () => {
 };
 
 export default RegisterPage;
+

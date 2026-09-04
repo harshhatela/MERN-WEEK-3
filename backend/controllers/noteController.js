@@ -1,4 +1,6 @@
 const Note = require("../models/Note");
+const fs = require("fs");
+const path = require("path");
 
 /**
  * @desc    Get all notes belonging to the logged-in user
@@ -170,6 +172,16 @@ const uploadNoteImage = async (req, res) => {
 
     // Update note image
     if (req.file) {
+      // Delete the old image file if one exists
+      if (note.image) {
+        const oldImagePath = path.join(__dirname, "..", "uploads", note.image);
+        fs.unlink(oldImagePath, (err) => {
+          if (err && err.code !== "ENOENT") {
+            console.error("Failed to delete old image:", err.message);
+          }
+        });
+      }
+
       note.image = req.file.filename;
       await note.save();
     } else {
@@ -184,3 +196,4 @@ const uploadNoteImage = async (req, res) => {
 };
 
 module.exports = { getNotes, getNoteById, createNote, updateNote, deleteNote, uploadNoteImage };
+
